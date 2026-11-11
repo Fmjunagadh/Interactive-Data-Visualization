@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090b10">
+<title>Half Marathon Sub-2 Simulator</title>
+<style>
+:root{--bg:#090b10;--panel:#15171e;--panel2:#1b1d25;--line:#292c36;--text:#f5f6fa;--muted:#999daa;--cyan:#39c5e6;--green:#42d6a0;--red:#ff687b;--yellow:#ffd45c;--purple:#9b91ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 5%,#18202b 0,transparent 32%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:1440px;margin:auto;padding:28px 24px 50px}.top{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}.eyebrow{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line);background:#171920;padding:10px 16px;border-radius:30px;color:#c4c7d1;font-size:14px}.pulse{color:var(--cyan);font-size:18px}h1{font-size:clamp(32px,5vw,56px);letter-spacing:-2px;margin:16px 0 24px}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn,.unit button{border:1px solid var(--line);background:#171920;color:#e8e9ef;border-radius:15px;padding:13px 17px;font-size:14px;font-weight:700;cursor:pointer}.btn:hover,.unit button:hover{border-color:var(--cyan)}.unit{display:flex;padding:5px;border:1px solid var(--line);border-radius:17px;background:#171920}.unit button{border:0;background:transparent}.unit button.active{background:var(--cyan);color:#061017}.divider{height:1px;background:var(--line);margin:24px 0 30px}
+.hero{border:1px solid #56303d;border-radius:28px;background:radial-gradient(circle at 90% 10%,#3a2029 0,transparent 38%),linear-gradient(120deg,#1a1018,#121319 60%,#171116);padding:34px;display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:center}.label{font-size:13px;letter-spacing:2px;font-weight:800;color:#b6b7c0}.status{display:inline-block;margin-left:12px;padding:8px 13px;border:1px solid #763543;border-radius:30px;color:var(--red);font-size:13px;letter-spacing:0}.status.good{color:var(--green);border-color:#286b57}.finish{font-size:clamp(52px,8vw,94px);font-weight:850;letter-spacing:-4px;margin:16px 0 4px;font-variant-numeric:tabular-nums}.goal-line{color:#b9bbc5;font-size:16px}.goal-line strong{color:var(--yellow)}.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.stat{background:#191a21;border:1px solid #2c2d35;border-radius:23px;padding:24px}.stat .name{color:#b8bac4;font-weight:700;font-size:15px}.stat .value{font-size:34px;font-weight:850;margin:12px 0 5px;font-variant-numeric:tabular-nums}.stat small{color:#858894}.cyan{color:var(--cyan)}.green{color:var(--green)}.purple{color:var(--purple)}.yellow{color:var(--yellow)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:22px}.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:24px}.card h2{font-size:20px;margin:0 0 7px}.sub{color:var(--muted);font-size:13px;margin-bottom:22px}.control{margin:23px 0}.control-head{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:12px}.control-head label{font-weight:700}.readout{color:var(--cyan);font-weight:800;font-variant-numeric:tabular-nums}.range{width:100%;accent-color:var(--cyan);cursor:pointer}.range-scale{display:flex;justify-content:space-between;color:#7e8290;font-size:11px;margin-top:5px}.hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:8px}.chart-wrap{height:270px;position:relative}.chart-wrap canvas{width:100%;height:100%}.legend{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-top:10px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:var(--cyan)}.dot.goal{background:var(--yellow)}
+.progress{height:9px;background:#2a2d37;border-radius:20px;overflow:hidden;margin:15px 0}.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:20px;width:0;transition:width .2s}.callout{background:#1b2027;border:1px solid #2b3d48;border-radius:16px;padding:16px;color:#c8d2da;font-size:13px;line-height:1.6;margin-top:18px}.foot{color:#777c89;font-size:12px;text-align:center;margin:28px 0 0;line-height:1.6}
+@media(max-width:850px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.wrap{padding:20px 14px}.hero{padding:22px}.finish{letter-spacing:-2px}.stat{padding:18px}}
+@media(max-width:460px){.stats{grid-template-columns:1fr 1fr}.stat{padding:14px}.stat .value{font-size:25px}.stat .name{font-size:12px}.actions{width:100%}.btn{flex:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow"><span class="pulse">∿</span><span>10-Week Sub-2 Progression Model</span><span style="color:#59606c">•</span><strong class="cyan" id="headerMetric">HM 13.1 mi / 21.1 km</strong></div>
+      <h1>Half Marathon Sub-2 Simulator</h1>
+    </div>
+    <div class="actions">
+      <div class="unit" aria-label="Distance unit"><button id="miBtn" class="active">Miles (/mi)</button><button id="kmBtn">Kilometers (/km)</button></div>
+      <button class="btn" id="exportBtn">▣ Export Plan</button><button class="btn" id="resetBtn">↶ Reset</button>
+    </div>
+  </header>
+  <div class="divider"></div>
+  <section class="hero">
+    <div>
+      <div class="label">PROJECTED FINISH TIME <span class="status" id="status">TARGET NOT MET</span></div>
+      <div class="finish" id="finish">2h 02m 28s</div>
+      <div class="goal-line">🏆 Target Goal: <strong>1h 59m 59s</strong> <span style="margin:0 10px">•</span><span id="gapText" style="color:var(--red)">+149s remaining to shave</span></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="name">◴ &nbsp;Race Day Pace</div><div class="value cyan" id="racePace">9:21<small>/mi</small></div><small id="paceTarget">Target: 9:09/mi</small></div>
+      <div class="stat"><div class="name">ϟ &nbsp;Pace Improvement</div><div class="value green" id="improvement">−84s<small>/mi</small></div><small id="improveCaption">Across 10 weeks</small></div>
+      <div class="stat"><div class="name">♧ &nbsp;Peak Long Run</div><div class="value purple" id="longRun">12.0 <small>mi</small></div><small id="peakCaption">Week 8 peak estimate</small></div>
+      <div class="stat"><div class="name">♨ &nbsp;Progress Status</div><div class="value yellow" id="tier">Tier 2</div><small>Illustrative pace tier</small></div>
+    </div>
+  </section>
+  <main class="grid">
+    <section class="card">
+      <h2>Adjust your training scenario</h2><div class="sub">Move the sliders to see how your projected result changes.</div>
+      <div class="control">
+        <div class="control-head"><label for="currentPace">Current half-marathon pace</label><span class="readout" id="currentReadout">10:26 /mi</span></div>
+        <input class="range" id="currentPace" type="range" min="7.5" max="13" step=".05" value="10.45">
+        <div class="range-scale"><span>7:30 /mi</span><span>13:00 /mi</span></div>
+        <div class="hint">Your current estimated average pace over the half-marathon distance.</div>
+      </div>
+      <div class="control">
+        <div class="control-head"><label for="weeklyGain">Pace improvement per week</label><span class="readout" id="gainReadout">8.5 sec /mi</span></div>
+        <input class="range" id="weeklyGain" type="range" min="0" max="18" step=".5" value="8.5">
+        <div class="range-scale"><span>0 sec</span><span>18 sec</span></div>
+        <div class="hint">An adjustable modelling assumption, not a promised training adaptation.</div>
+      </div>
+      <div class="control">
+        <div class="control-head"><label for="weeks">Training duration</label><span class="readout" id="weeksReadout">10 weeks</span></div>
+        <input class="range" id="weeks" type="range" min="4" max="16" step="1" value="10">
+        <div class="range-scale"><span>4 weeks</span><span>16 weeks</span></div>
+        <div class="hint">The model applies the weekly improvement assumption over this period.</div>
+      </div>
+      <div class="callout"><strong>Model note:</strong> The projected pace is calculated as current pace minus (weekly improvement × training weeks). Actual race results depend on fitness, recovery, course, weather and many other factors.</div>
+    </section>
+    <section class="card">
+      <h2>Projected progression</h2><div class="sub">Estimated pace improvement over your selected training block.</div>
+      <div class="chart-wrap"><canvas id="chart" aria-label="Projected pace progression chart"></canvas></div>
+      <div class="legend"><span><i class="dot"></i>Projected pace</span><span><i class="dot goal"></i>Sub-2 target pace</span></div>
+      <div style="margin-top:24px;display:flex;justify-content:space-between;gap:12px"><span style="color:var(--muted);font-size:13px">Progress toward sub-2 pace</span><strong id="progressLabel" class="cyan">0%</strong></div>
+      <div class="progress"><span id="progressBar"></span></div>
+      <div class="callout" id="insight">Adjust the sliders to explore your scenario.</div>
+    </section>
+  </main>
+  <p class="foot">Half Marathon = 13.1094 miles / 21.0975 km • Sub-2 target pace ≈ 9:09/mi or 5:41/km.<br>Educational scenario simulator only. It does not prescribe a training plan or replace advice from a qualified coach or healthcare professional.</p>
+</div>
+<script>
+(() => {
+const DIST_MI=13.1094, DIST_KM=21.0975, TARGET_SECONDS=7199;
+const defaults={pace:10.45,gain:8.5,weeks:10,unit:'mi'};
+let state={...defaults};
+const $=id=>document.getElementById(id);
+const els={pace:$('currentPace'),gain:$('weeklyGain'),weeks:$('weeks')};
+function fmtTime(total){total=Math.max(0,Math.round(total));let h=Math.floor(total/3600),m=Math.floor(total%3600/60),s=total%60;return `${h}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;}
+function paceText(minutesPerMile,unit=state.unit){const minutes=unit==='mi'?minutesPerMile:minutesPerMile/1.609344;let sec=Math.max(0,Math.round(minutes*60));return `${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;}
+function perUnit(secondsPerMile){return state.unit==='mi'?secondsPerMile:secondsPerMile/1.609344;}
+function paceWithUnit(minPerMile){return `${paceText(perUnit(minPerMile*60)/60)}/${state.unit}`;}
+function render(){
+ state.pace=+els.pace.value;state.gain=+els.gain.value;state.weeks=+els.weeks.value;
+ const improvement=state.gain*state.weeks;
+ const projectedPace=Math.max(4,state.pace-improvement/60);
+ const finishSeconds=projectedPace*60*DIST_MI;
+ const targetPace=TARGET_SECONDS/60/DIST_MI;
+ const gap=finishSeconds-TARGET_SECONDS;
+ const longRun=Math.min(18,Math.max(6,Math.round((7+state.weeks*.5)*2)/2));
+ const pct=Math.max(0,Math.min(100,((state.pace-projectedPace)/(state.pace-targetPace))*100));
+ $('finish').textContent=fmtTime(finishSeconds);
+ $('status').textContent=gap<=0?'TARGET REACHED':'TARGET NOT MET';
+ $('status').classList.toggle('good',gap<=0);
+ $('gapText').textContent=gap<=0?`${Math.abs(Math.round(gap))}s under target`:`+${Math.round(gap)}s remaining to shave`;
+ $('gapText').style.color=gap<=0?'var(--green)':'var(--red)';
+ $('racePace').innerHTML=`${paceText(projectedPace) }<small>/${state.unit}</small>`;
+ $('paceTarget').textContent=`Target: ${paceText(targetPace)}/${state.unit}`;
+ $('improvement').innerHTML=`−${perUnit(improvement).toFixed(1)}<small>s/${state.unit}</small>`;
+ $('improveCaption').textContent=`Across ${state.weeks} weeks`;
+ $('longRun').innerHTML=`${(state.unit==='mi'?longRun:longRun*1.609344).toFixed(1)} <small>${state.unit}</small>`;
+ $('peakCaption').textContent=`Week ${Math.max(1,Math.round(state.weeks*.8))} peak estimate`;
+ $('tier').textContent=projectedPace<=8.5?'Tier 4':projectedPace<=9.25?'Tier 3':projectedPace<=10.25?'Tier 2':'Tier 1';
+ $('currentReadout').textContent=`${paceText(state.pace)}/${state.unit}`;
+ $('gainReadout').textContent=`${perUnit(state.gain).toFixed(1)} sec /${state.unit}`;
+ $('weeksReadout').textContent=`${state.weeks} weeks`;
+ $('improveCaption').textContent=`Across ${state.weeks} weeks`;
+ $('progressLabel').textContent=`${Math.round(pct)}%`;
+ $('progressBar').style.width=`${pct}%`;
+ $('insight').textContent=gap<=0?`Under these assumptions, the model projects a sub-2 finish. Keep the assumptions realistic and validate progress with actual training data.`:`Under these assumptions, the projection is ${Math.round(gap)} seconds above the sub-2 target. Try a different duration or improvement assumption to compare scenarios.`;
+ $('headerMetric').textContent=`HM ${state.unit==='mi'?'13.1 mi':'21.1 km'} / ${state.unit==='mi'?'21.1 km':'13.1 mi'}`;\n document.querySelectorAll('.range-scale')[0].innerHTML=state.unit==='mi'?'<span>7:30 /mi</span><span>13:00 /mi</span>':'<span>4:40 /km</span><span>8:05 /km</span>';\n document.querySelectorAll('.range-scale')[1].innerHTML=state.unit==='mi'?'<span>0 sec/mi</span><span>18 sec/mi</span>':'<span>0 sec/km</span><span>11.2 sec/km</span>';
+ drawChart(projectedPace,targetPace);
+}
+function drawChart(projected,target){
+ const canvas=$('chart'),rect=canvas.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+ canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;
+ const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
+ const w=rect.width,h=rect.height,pad={l:44,r:14,t:16,b:32};
+ const n=state.weeks+1, values=Array.from({length:n},(_,i)=>state.pace-(state.gain*i)/60);
+ const min=Math.min(target,projected)-.25,max=Math.max(state.pace,target)+.25;
+ const x=i=>pad.l+(w-pad.l-pad.r)*i/(n-1||1);
+ const y=v=>pad.t+(h-pad.t-pad.b)*(max-v)/(max-min||1);
+ ctx.font='11px system-ui';ctx.fillStyle='#858a98';ctx.strokeStyle='#2a2e38';ctx.lineWidth=1;
+ for(let j=0;j<5;j++){let v=min+(max-min)*j/4,yy=y(v);ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(w-pad.r,yy);ctx.stroke();ctx.fillText(paceText(v),2,yy+4);}
+ ctx.setLineDash([5,5]);ctx.strokeStyle='#ffd45c';ctx.beginPath();ctx.moveTo(pad.l,y(target));ctx.lineTo(w-pad.r,y(target));ctx.stroke();ctx.setLineDash([]);
+ ctx.strokeStyle='#39c5e6';ctx.lineWidth=3;ctx.beginPath();values.forEach((v,i)=>i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v)));ctx.stroke();
+ values.forEach((v,i)=>{ctx.fillStyle='#39c5e6';ctx.beginPath();ctx.arc(x(i),y(v),3.5,0,Math.PI*2);ctx.fill();});
+ ctx.fillStyle='#858a98';ctx.textAlign='center';let every=Math.max(1,Math.ceil(state.weeks/8));
+ for(let i=0;i<n;i+=every)ctx.fillText(i===0?'Start':`W${i}`,x(i),h-8);
+}
+Object.values(els).forEach(el=>el.addEventListener('input',render));
+$('miBtn').addEventListener('click',()=>{state.unit='mi';$('miBtn').classList.add('active');$('kmBtn').classList.remove('active');render();});
+$('kmBtn').addEventListener('click',()=>{state.unit='km';$('kmBtn').classList.add('active');$('miBtn').classList.remove('active');render();});
+$('resetBtn').addEventListener('click',()=>{state={...defaults};els.pace.value=defaults.pace;els.gain.value=defaults.gain;els.weeks.value=defaults.weeks;state.unit='mi';$('miBtn').classList.add('active');$('kmBtn').classList.remove('active');render();});
+$('exportBtn').addEventListener('click',()=>{
+ const txt=`HALF MARATHON SUB-2 SIMULATOR\nCurrent pace: ${paceText(state.pace)}/${state.unit}\nWeekly improvement assumption: ${perUnit(state.gain).toFixed(1)} sec/${state.unit}\nTraining duration: ${state.weeks} weeks\nProjected finish: ${$('finish').textContent}\nRace-day pace: ${$('racePace').textContent}\nStatus: ${$('status').textContent}\n\nEducational estimate only; not a guaranteed result.`;
+ const blob=new Blob([txt],{type:'text/plain'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='half-marathon-scenario.txt';a.click();URL.revokeObjectURL(url);
+});
+window.addEventListener('resize',()=>drawChart(Math.max(4,state.pace-state.gain*state.weeks/60),TARGET_SECONDS/60/DIST_MI));
+render();
+})();
+</script>
+</body>
+</html>
